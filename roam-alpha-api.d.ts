@@ -364,7 +364,7 @@ export interface DataAPI {
      * @returns Query results
      * @throws Error with message "Query and/or pull expression took too long to run." if timeout (20 seconds)
      */
-    q(query: string, ...args: any[]): QueryResult;
+    q(query: string, ...args: any[]): QueryResult[];
 
     /**
      * A declarative way to make hierarchical (and possibly nested) selections of information about entities
@@ -396,7 +396,7 @@ export interface DataAPI {
          * @returns Read-only proxy object (cljs wrapped in js proxy)
          * @throws Error with message "Query and/or pull expression took too long to run." if timeout (20 seconds)
          */
-        q(query: string, ...args: any[]): FastResult;
+        q(query: string, ...args: any[]): PullResult[];
     };
 
     /**
@@ -434,7 +434,7 @@ export interface DataAPI {
          * @returns Promise resolving to fast result
          */
         fast: {
-            q(query: string, ...args: any[]): Promise<FastResult>;
+            q(query: string, ...args: any[]): Promise<PullResult[]>;
         };
     };
 
@@ -1431,7 +1431,7 @@ export interface RoamAlphaAPI {
      * @returns Query results
      * @see data.q for full documentation
      */
-    q(query: string, ...args: any[]): QueryResult;
+    q(query: string, ...args: any[]): QueryResult[];
 
     /**
      * Pull entity data (convenience method)
