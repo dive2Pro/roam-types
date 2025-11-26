@@ -1423,6 +1423,80 @@ export interface RoamAlphaAPI {
      * Constants
      */
     constants: ConstantsAPI;
+
+    /**
+     * Query the graph using datomic flavored datalog (convenience method)
+     * @param query - Datalog query string
+     * @param args - Additional query arguments
+     * @returns Query results
+     * @see data.q for full documentation
+     */
+    q(query: string, ...args: any[]): QueryResult;
+
+    /**
+     * Pull entity data (convenience method)
+     * @param pattern - Pull pattern string
+     * @param eid - Entity ID
+     * @returns Pulled entity data
+     * @see data.pull for full documentation
+     */
+    pull(pattern: PullPattern, eid: EntityId): PullResult;
+
+    /**
+     * Create a new block (convenience method)
+     * @param params - Block create parameters
+     * @returns Promise which resolves once operation has completed
+     * @see data.block.create for full documentation
+     */
+    createBlock(params: BlockCreateParams): Promise<void>;
+
+    /**
+     * Update a block (convenience method)
+     * @param params - Block update parameters
+     * @returns Promise which resolves once operation has completed
+     * @see data.block.update for full documentation
+     */
+    updateBlock(params: BlockUpdateParams): Promise<void>;
+
+    /**
+     * Move a block (convenience method)
+     * @param params - Block move parameters
+     * @returns Promise which resolves once operation has completed
+     * @see data.block.move for full documentation
+     */
+    moveBlock(params: BlockMoveParams): Promise<void>;
+
+    /**
+     * Delete a block (convenience method)
+     * @param params - Block delete parameters
+     * @returns Promise which resolves once operation has completed
+     * @see data.block.delete for full documentation
+     */
+    deleteBlock(params: BlockDeleteParams): Promise<void>;
+
+    /**
+     * Create a new page (convenience method)
+     * @param params - Page create parameters
+     * @returns Promise which resolves once operation has completed
+     * @see data.page.create for full documentation
+     */
+    createPage(params: PageCreateParams): Promise<void>;
+
+    /**
+     * Update a page (convenience method)
+     * @param params - Page update parameters
+     * @returns Promise which resolves once operation has completed
+     * @see data.page.update for full documentation
+     */
+    updatePage(params: PageUpdateParams): Promise<void>;
+
+    /**
+     * Delete a page (convenience method)
+     * @param params - Page delete parameters
+     * @returns Promise which resolves once operation has completed
+     * @see data.page.delete for full documentation
+     */
+    deletePage(params: PageDeleteParams): Promise<void>;
 }
 
 /**

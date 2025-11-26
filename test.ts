@@ -56,3 +56,40 @@ console.log('User UID:', userUid);
 console.log('Is admin:', api.user.isAdmin());
 
 window.roamAlphaAPI.data.q('[:find ?uid :where [?b :block/uid ?uid]]');
+
+// 根级别的便捷方法
+// 这些方法也可以直接在 roamAlphaAPI 上调用
+const rootQuery = window.roamAlphaAPI.q('[:find ?uid :where [?b :block/uid ?uid]]');
+const rootPull = window.roamAlphaAPI.pull('[*]', [':block/uid', 'abc123']);
+
+// 块操作便捷方法
+await window.roamAlphaAPI.createBlock({
+    location: { 'parent-uid': 'parent-uid', order: 0 },
+    block: { string: 'New block' }
+});
+
+await window.roamAlphaAPI.updateBlock({
+    block: { uid: 'abc123', string: 'Updated' }
+});
+
+await window.roamAlphaAPI.moveBlock({
+    location: { 'parent-uid': 'new-parent', order: 0 },
+    block: { uid: 'abc123' }
+});
+
+await window.roamAlphaAPI.deleteBlock({
+    block: { uid: 'abc123' }
+});
+
+// 页面操作便捷方法
+await window.roamAlphaAPI.createPage({
+    page: { title: 'New Page' }
+});
+
+await window.roamAlphaAPI.updatePage({
+    page: { uid: 'page-uid', title: 'Updated Title' }
+});
+
+await window.roamAlphaAPI.deletePage({
+    page: { uid: 'page-uid' }
+});

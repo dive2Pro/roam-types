@@ -73,6 +73,64 @@ if (window.roamAlphaAPI) {
 }
 ```
 
+### Root-Level Convenience Methods
+
+The Roam Alpha API also provides convenience methods at the root level for common operations:
+
+```typescript
+import "roam-types";
+import type { QueryResult, PullResult } from "roam-types";
+
+if (window.roamAlphaAPI) {
+  const api = window.roamAlphaAPI;
+
+  // Root-level query (same as api.data.q)
+  const results: QueryResult = api.q(
+    "[:find ?uid ?string :where [?b :block/uid ?uid] [?b :block/string ?string]]"
+  );
+
+  // Root-level pull (same as api.data.pull)
+  const block: PullResult = api.pull("[*]", [":block/uid", "abc123"]);
+
+  // Root-level block operations (convenience methods)
+  await api.createBlock({
+    location: { "parent-uid": "parent-uid", order: 0 },
+    block: { string: "New block" },
+  });
+
+  await api.updateBlock({
+    block: { uid: "abc123", string: "Updated content" },
+  });
+
+  await api.moveBlock({
+    location: { "parent-uid": "new-parent", order: 0 },
+    block: { uid: "abc123" },
+  });
+
+  await api.deleteBlock({
+    block: { uid: "abc123" },
+  });
+
+  // Root-level page operations (convenience methods)
+  await api.createPage({
+    page: { title: "New Page" },
+  });
+
+  await api.updatePage({
+    page: { uid: "page-uid", title: "Updated Title" },
+  });
+
+  await api.deletePage({
+    page: { uid: "page-uid" },
+  });
+}
+```
+
+**Note:** These root-level methods are convenience wrappers around the `data` API methods. Both approaches are equivalent:
+
+- `api.q()` is the same as `api.data.q()`
+- `api.createBlock()` is the same as `api.data.block.create()`
+
 ### Roam Depot/Extension API
 
 The Roam Depot/Extension API is used for developing Roam extensions.
@@ -130,6 +188,7 @@ export default async function onload(extensionAPI: RoamExtensionAPI) {
 #### Main Interfaces
 
 - `RoamAlphaAPI` - Main API interface mounted on `window.roamAlphaAPI`
+  - Root-level convenience methods: `q()`, `pull()`, `createBlock()`, `updateBlock()`, `moveBlock()`, `deleteBlock()`, `createPage()`, `updatePage()`, `deletePage()`
 - `DataAPI` - Data operations (queries, pulls, block/page operations)
 - `UIAPI` - UI operations (windows, menus, components)
 - `UtilAPI` - Utility functions
@@ -167,6 +226,18 @@ export default async function onload(extensionAPI: RoamExtensionAPI) {
 This package provides comprehensive type definitions for:
 
 1. **Roam Alpha API** (`roam-alpha-api.d.ts`)
+
+   - **Root-Level Convenience Methods**
+
+     - `q()` - Query the graph (same as `data.q()`)
+     - `pull()` - Pull entity data (same as `data.pull()`)
+     - `createBlock()` - Create a block (same as `data.block.create()`)
+     - `updateBlock()` - Update a block (same as `data.block.update()`)
+     - `moveBlock()` - Move a block (same as `data.block.move()`)
+     - `deleteBlock()` - Delete a block (same as `data.block.delete()`)
+     - `createPage()` - Create a page (same as `data.page.create()`)
+     - `updatePage()` - Update a page (same as `data.page.update()`)
+     - `deletePage()` - Delete a page (same as `data.page.delete()`)
 
    - **Data Operations** (`data`)
 
