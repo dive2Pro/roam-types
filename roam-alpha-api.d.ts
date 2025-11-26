@@ -287,6 +287,7 @@ export interface BlockUpdateParams {
         'text-align'?: 'left' | 'center' | 'right' | 'justify';
         'children-view-type'?: 'bullet' | 'document' | 'numbered';
         'block-view-type'?: string;
+        props?: Record<string, any>;
     };
 }
 

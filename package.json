@@ -1,6 +1,6 @@
 {
   "name": "roam-types",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "TypeScript type definitions for Roam Research Roam Depot/Extension API and Roam Alpha API",
   "main": "index.d.ts",
   "types": "index.d.ts",
