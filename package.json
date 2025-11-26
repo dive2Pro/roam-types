@@ -1,0 +1,29 @@
+{
+  "name": "roam-types",
+  "version": "1.0.0",
+  "description": "TypeScript type definitions for Roam Research Roam Depot/Extension API and Roam Alpha API",
+  "main": "index.d.ts",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "tsc --noEmit"
+  },
+  "keywords": [
+    "roam-research",
+    "roam",
+    "typescript",
+    "types",
+    "definitions",
+    "roam-depot",
+    "roam-alpha-api"
+  ],
+  "author": "dive2Pro",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "*.d.ts",
+    "README.md"
+  ]
+}
+
