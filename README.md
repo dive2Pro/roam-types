@@ -133,50 +133,58 @@ if (window.roamAlphaAPI) {
 
 ### Roam Depot/Extension API
 
-The Roam Depot/Extension API is used for developing Roam extensions.
+The Roam Depot/Extension API is used for developing Roam extensions. The API is scoped to your extension, ensuring no conflicts with other extensions.
 
 ```typescript
-import type { RoamExtensionAPI, BlockContext, PageContext } from "roam-types";
+import type {
+  RoamExtensionAPI,
+  ExtensionCommandPaletteCommandParams,
+} from "roam-types";
 
 // Extension entry point
 export default async function onload(extensionAPI: RoamExtensionAPI) {
-  // Register a block context menu button
-  extensionAPI.ui.blockContextMenuButton({
-    label: "My Action",
-    action: (context: BlockContext) => {
-      console.log("Block UID:", context["block-uid"]);
-      extensionAPI.util.toast("Action executed!");
-    },
-  });
+  // Settings API - scoped to your extension, persisted across devices
+  const mySetting = extensionAPI.settings.get("my-setting");
+  extensionAPI.settings.set("my-setting", "value");
+  const allSettings = extensionAPI.settings.getAll();
 
-  // Register a command
-  extensionAPI.command.register({
-    id: "my-command",
-    label: "My Command",
-    callback: () => {
-      extensionAPI.util.toast("Command executed!");
-    },
-  });
-
-  // Create a sidebar panel
-  const panel = extensionAPI.ui.sidebarPanel({
-    tabTitle: "My Panel",
-    component: MyComponent,
-  });
-
-  // Settings
-  extensionAPI.settings.panel({
+  // Create a settings panel
+  extensionAPI.settings.panel.create({
     tabTitle: "My Extension",
     settings: [
       {
-        id: "my-setting",
+        id: "my-setting", // Must be non-empty and cannot contain ".", "#", "$", "[", or "]"
         name: "My Setting",
         description: "A setting for my extension",
         action: {
           type: "switch",
         },
       },
+      {
+        id: "text-setting",
+        name: "Text Setting",
+        description: "A text input setting",
+        action: {
+          type: "text",
+          placeholder: "Enter text here",
+        },
+      },
     ],
+  });
+
+  // Command Palette API - commands are associated with your extension
+  // No need to call removeCommand on onunload - automatically cleaned up
+  await extensionAPI.ui.commandPalette.addCommand({
+    label: "My Command",
+    callback: () => {
+      console.log("Command executed!");
+    },
+    "default-hotkey": "ctrl+shift+m",
+  });
+
+  // Remove a command (optional - will be cleaned up automatically on unload)
+  await extensionAPI.ui.commandPalette.removeCommand({
+    label: "My Command",
   });
 }
 ```
@@ -212,14 +220,29 @@ export default async function onload(extensionAPI: RoamExtensionAPI) {
 ### Roam Depot/Extension API
 
 - `RoamExtensionAPI` - Main extension API interface
+  - `settings` - Settings API (scoped to extension, persisted across devices)
+  - `ui` - UI API for adding UI elements
 - `SettingsAPI` - Settings management
-- `UIAPI` - UI element creation
-- `CommandAPI` - Command registration
-- `BlockAPI` - Block operations
-- `PageAPI` - Page operations
-- `GraphAPI` - Graph operations
-- `UserAPI` - User information
-- `UtilAPI` - Utility functions
+  - `get(key)` - Get a setting value
+  - `set(key, value)` - Set a setting value
+  - `getAll()` - Get all settings
+  - `panel.create(config)` - Create a settings panel
+- `ExtensionUIAPI` - Extension UI API
+  - `commandPalette` - Command palette API (commands associated with extension)
+- `ExtensionCommandPaletteAPI` - Command palette operations
+  - `addCommand(params)` - Add a command (same as roamAlphaAPI, but associated with extension)
+  - `removeCommand(params)` - Remove a command (no need to call on onunload - auto-cleaned)
+- `ExtensionCommandPaletteCommandParams` - Command parameters
+  - `label` - Command label
+  - `callback` - Command callback function
+  - `disable-hotkey?` - Disable hotkey
+  - `default-hotkey?` - Default hotkey (string or array for multi-step)
+- `SettingsPanelConfig` - Settings panel configuration
+- `SettingConfig` - Individual setting configuration
+  - `id` - Setting ID (must be non-empty, cannot contain ".", "#", "$", "[", or "]")
+  - `name` - Setting display name
+  - `description?` - Setting description
+  - `action` - Setting action configuration
 
 ## Type Definitions
 
@@ -266,13 +289,17 @@ This package provides comprehensive type definitions for:
    - **Utilities** (`util`, `platform`, `graph`, `file`, `user`, `depot`, `constants`)
 
 2. **Roam Depot/Extension API** (`roam-depot-api.d.ts`)
-   - Extension lifecycle (`onload`, `onunload`)
-   - Settings management
-   - UI components (buttons, panels, windows)
-   - Command registration
-   - Block and page operations
-   - Graph queries
-   - Utility functions
+   - **Settings API** (`settings`)
+     - `get(key)` - Get setting value
+     - `set(key, value)` - Set setting value
+     - `getAll()` - Get all settings
+     - `panel.create(config)` - Create settings panel
+     - Settings are scoped to your extension and persisted across devices
+   - **UI API** (`ui`)
+     - `commandPalette.addCommand(params)` - Add command to palette (associated with extension)
+     - `commandPalette.removeCommand(params)` - Remove command (auto-cleaned on unload)
+     - Commands added via extensionAPI are grouped by extension (e.g., in Hotkeys window)
+     - No need to call `removeCommand` on `onunload` - automatically cleaned up
 
 ### Data Structure Types
 
@@ -368,3 +395,30 @@ Roam Research is built on a Datomic database. The type definitions reflect the a
 - **Async API** (`data.async.q()`, `data.async.pull()`) - Promise-based (recommended for new extensions)
 - **Fast API** (`data.fast.q()`) - Read-only, faster performance (~33% faster)
 - **Backend API** (`data.backend.q()`) - Runs against backend (off-thread)
+
+### Extension API Features
+
+#### Settings API
+
+The Settings API is scoped to your extension, ensuring no conflicts with other extensions:
+
+- Settings are persisted across devices
+- Use `settings.get(key)` to retrieve a setting value
+- Use `settings.set(key, value)` to set a setting value
+- Use `settings.getAll()` to get all settings as an object
+- Use `settings.panel.create(config)` to create a settings panel
+
+**Important:** Setting IDs must be non-empty strings and cannot contain ".", "#", "$", "[", or "]".
+
+#### Command Palette API
+
+The Command Palette API allows you to add commands that are associated with your extension:
+
+- Commands are automatically grouped by extension (e.g., in the Hotkeys window)
+- Commands are automatically cleaned up when the extension is unloaded
+- No need to call `removeCommand` in `onunload` - unlike `roamAlphaAPI.ui.commandPalette`
+- Same API signature as `window.roamAlphaAPI.ui.commandPalette.addCommand`
+
+**Migration from roamAlphaAPI:**
+
+If you're migrating from `window.roamAlphaAPI.ui.commandPalette.addCommand`, simply replace it with `extensionAPI.ui.commandPalette.addCommand`. The commands will now be associated with your extension and automatically cleaned up on unload.

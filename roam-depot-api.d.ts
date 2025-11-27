@@ -18,48 +18,20 @@ export type ReactNode = any;
  */
 export interface RoamExtensionAPI {
   /**
-   * Settings API for extension configuration
+   * Settings API - scoped to your extension, persisted across devices
    */
   settings: SettingsAPI;
 
   /**
-   * UI API for creating UI elements
+   * UI API - for adding UI elements like command palette commands
    */
-  ui: UIAPI;
-
-  /**
-   * Command API for registering commands
-   */
-  command: CommandAPI;
-
-  /**
-   * Block API for block operations
-   */
-  block: BlockAPI;
-
-  /**
-   * Page API for page operations
-   */
-  page: PageAPI;
-
-  /**
-   * Graph API for graph operations
-   */
-  graph: GraphAPI;
-
-  /**
-   * User API for user information
-   */
-  user: UserAPI;
-
-  /**
-   * Utility functions
-   */
-  util: UtilAPI;
+  ui: ExtensionUIAPI;
 }
 
 /**
  * Settings API
+ * Settings are scoped to your extension, there is no risk of it conflicting with another extension.
+ * They are persisted across devices as well.
  */
 export interface SettingsAPI {
   /**
@@ -83,10 +55,17 @@ export interface SettingsAPI {
   getAll(): Record<string, any>;
 
   /**
-   * Register a settings panel
-   * @param config - Settings panel configuration
+   * Settings panel API
    */
-  panel(config: SettingsPanelConfig): void;
+  panel: {
+    /**
+     * Create a settings panel
+     * @param config - Settings panel configuration
+     * @see https://github.com/panterarocks49/settings-panel-example/blob/main/extension.js for example config
+     * @note Regarding "id" in a setting: they must be non-empty strings and can't contain ".", "#", "$", "[", or "]"
+     */
+    create(config: SettingsPanelConfig): void;
+  };
 }
 
 /**
@@ -101,6 +80,9 @@ export interface SettingsPanelConfig {
  * Setting Configuration
  */
 export interface SettingConfig {
+  /**
+   * Setting ID - must be a non-empty string and cannot contain ".", "#", "$", "[", or "]"
+   */
   id: string;
   name: string;
   description?: string;
@@ -112,7 +94,55 @@ export interface SettingConfig {
 }
 
 /**
- * UI API
+ * Extension UI API
+ */
+export interface ExtensionUIAPI {
+  /**
+   * Command palette API
+   * Commands added via extensionAPI are associated with your extension and have convenient grouping
+   * (e.g., in the Hotkeys window). Unlike roamAlphaAPI's version, you do not need to call removeCommand
+   * on onunload - commands are automatically cleaned up on unload.
+   */
+  commandPalette: ExtensionCommandPaletteAPI;
+}
+
+/**
+ * Extension Command Palette API
+ * Same as window.roamAlphaAPI.ui.commandPalette, but commands are associated with your extension.
+ */
+export interface ExtensionCommandPaletteAPI {
+  /**
+   * Adds a command to the Command Palette
+   * Same as window.roamAlphaAPI.ui.commandPalette.addCommand, but commands are associated with your extension.
+   * @param params - Command parameters
+   * @returns Promise which resolves once operation has completed
+   */
+  addCommand(params: ExtensionCommandPaletteCommandParams): Promise<void>;
+
+  /**
+   * Removes a command from the Command Palette
+   * Same as window.roamAlphaAPI.ui.commandPalette.removeCommand, but you do not need to call this on onunload.
+   * Commands are automatically cleaned up on unload.
+   * @param params - Command label
+   * @returns Promise which resolves once operation has completed
+   */
+  removeCommand(params: { label: string }): Promise<void>;
+}
+
+/**
+ * Extension Command Palette Command Parameters
+ * Same as CommandPaletteCommandParams from roamAlphaAPI
+ */
+export interface ExtensionCommandPaletteCommandParams {
+  label: string;
+  callback: () => void;
+  'disable-hotkey'?: boolean;
+  'default-hotkey'?: string | string[]; // String or array of strings for multi-step hotkeys
+}
+
+/**
+ * UI API (deprecated - use ExtensionUIAPI)
+ * @deprecated This interface is kept for backward compatibility
  */
 export interface UIAPI {
   /**
