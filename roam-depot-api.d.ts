@@ -84,13 +84,102 @@ export interface SettingConfig {
    * Setting ID - must be a non-empty string and cannot contain ".", "#", "$", "[", or "]"
    */
   id: string;
+  /**
+   * CSS class name for the setting
+   */
+  className?: string;
   name: string;
-  description?: string;
-  action: {
-    type: 'switch' | 'text' | 'textarea' | 'number' | 'select';
-    placeholder?: string;
-    options?: Array<{ value: string; label: string }>;
-  };
+  /**
+   * Setting description - can be a string or React element
+   */
+  description?: string | ReactNode;
+  /**
+   * Setting action configuration
+   */
+  action: SettingAction;
+}
+
+/**
+ * Setting Action - union type for different action types
+ */
+export type SettingAction =
+  | ButtonSettingAction
+  | SwitchSettingAction
+  | InputSettingAction
+  | SelectSettingAction
+  | ReactComponentSettingAction
+  | TextSettingAction
+  | TextareaSettingAction
+  | NumberSettingAction;
+
+/**
+ * Button setting action
+ */
+export interface ButtonSettingAction {
+  type: 'button';
+  onClick: (evt: any) => void;
+  content: string;
+}
+
+/**
+ * Switch setting action
+ */
+export interface SwitchSettingAction {
+  type: 'switch';
+  onChange?: (evt: any) => void;
+}
+
+/**
+ * Input setting action
+ */
+export interface InputSettingAction {
+  type: 'input';
+  placeholder?: string;
+  onChange?: (evt: any) => void;
+}
+
+/**
+ * Select setting action
+ */
+export interface SelectSettingAction {
+  type: 'select';
+  items: string[];
+  onChange?: (evt: any) => void;
+}
+
+/**
+ * React component setting action
+ */
+export interface ReactComponentSettingAction {
+  type: 'reactComponent';
+  component: ComponentType<any>;
+}
+
+/**
+ * Text setting action
+ */
+export interface TextSettingAction {
+  type: 'text';
+  placeholder?: string;
+  onChange?: (evt: any) => void;
+}
+
+/**
+ * Textarea setting action
+ */
+export interface TextareaSettingAction {
+  type: 'textarea';
+  placeholder?: string;
+  onChange?: (evt: any) => void;
+}
+
+/**
+ * Number setting action
+ */
+export interface NumberSettingAction {
+  type: 'number';
+  placeholder?: string;
+  onChange?: (evt: any) => void;
 }
 
 /**

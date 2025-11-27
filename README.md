@@ -148,16 +148,54 @@ export default async function onload(extensionAPI: RoamExtensionAPI) {
   extensionAPI.settings.set("my-setting", "value");
   const allSettings = extensionAPI.settings.getAll();
 
-  // Create a settings panel
+  // Create a settings panel with various setting types
   extensionAPI.settings.panel.create({
     tabTitle: "My Extension",
     settings: [
       {
-        id: "my-setting", // Must be non-empty and cannot contain ".", "#", "$", "[", or "]"
-        name: "My Setting",
-        description: "A setting for my extension",
+        id: "button-setting", // Must be non-empty and cannot contain ".", "#", "$", "[", or "]"
+        className: "ext-settings-panel-button-setting",
+        name: "Button Test",
+        description: "Tests the button",
+        action: {
+          type: "button",
+          onClick: (evt) => {
+            console.log("Button clicked!");
+          },
+          content: "Click Me",
+        },
+      },
+      {
+        id: "switch-setting",
+        name: "Switch Test",
+        description: "Toggle this setting",
         action: {
           type: "switch",
+          onChange: (evt) => {
+            console.log("Switch toggled!", evt);
+          },
+        },
+      },
+      {
+        id: "input-setting",
+        name: "Input Test",
+        action: {
+          type: "input",
+          placeholder: "Enter text here",
+          onChange: (evt) => {
+            console.log("Input changed!", evt);
+          },
+        },
+      },
+      {
+        id: "select-setting",
+        name: "Select Test",
+        action: {
+          type: "select",
+          items: ["Option 1", "Option 2", "Option 3"],
+          onChange: (evt) => {
+            console.log("Select changed!", evt);
+          },
         },
       },
       {
@@ -167,6 +205,14 @@ export default async function onload(extensionAPI: RoamExtensionAPI) {
         action: {
           type: "text",
           placeholder: "Enter text here",
+        },
+      },
+      {
+        id: "reactComponent-setting",
+        name: "React Component Test",
+        action: {
+          type: "reactComponent",
+          component: MyCustomComponent,
         },
       },
     ],
@@ -238,11 +284,23 @@ export default async function onload(extensionAPI: RoamExtensionAPI) {
   - `disable-hotkey?` - Disable hotkey
   - `default-hotkey?` - Default hotkey (string or array for multi-step)
 - `SettingsPanelConfig` - Settings panel configuration
+  - `tabTitle` - Tab title for the settings panel
+  - `settings` - Array of setting configurations
 - `SettingConfig` - Individual setting configuration
   - `id` - Setting ID (must be non-empty, cannot contain ".", "#", "$", "[", or "]")
+  - `className?` - CSS class name for the setting
   - `name` - Setting display name
-  - `description?` - Setting description
-  - `action` - Setting action configuration
+  - `description?` - Setting description (string or React element)
+  - `action` - Setting action configuration (union type)
+- `SettingAction` - Union type for setting actions
+  - `ButtonSettingAction` - Button action (`type: "button"`, requires `onClick`, `content`)
+  - `SwitchSettingAction` - Switch/toggle action (`type: "switch"`, optional `onChange`)
+  - `InputSettingAction` - Input field action (`type: "input"`, optional `placeholder`, `onChange`)
+  - `SelectSettingAction` - Select dropdown action (`type: "select"`, requires `items`, optional `onChange`)
+  - `ReactComponentSettingAction` - Custom React component (`type: "reactComponent"`, requires `component`)
+  - `TextSettingAction` - Text input action (`type: "text"`, optional `placeholder`, `onChange`)
+  - `TextareaSettingAction` - Textarea input action (`type: "textarea"`, optional `placeholder`, `onChange`)
+  - `NumberSettingAction` - Number input action (`type: "number"`, optional `placeholder`, `onChange`)
 
 ## Type Definitions
 
@@ -409,6 +467,58 @@ The Settings API is scoped to your extension, ensuring no conflicts with other e
 - Use `settings.panel.create(config)` to create a settings panel
 
 **Important:** Setting IDs must be non-empty strings and cannot contain ".", "#", "$", "[", or "]".
+
+**Setting Action Types:**
+
+The settings panel supports various action types:
+
+1. **Button** (`type: "button"`)
+
+   - Requires: `onClick` callback, `content` string
+   - Example: `{ type: "button", onClick: (evt) => {...}, content: "Click Me" }`
+
+2. **Switch** (`type: "switch"`)
+
+   - Optional: `onChange` callback
+   - Example: `{ type: "switch", onChange: (evt) => {...} }`
+
+3. **Input** (`type: "input"`)
+
+   - Optional: `placeholder`, `onChange` callback
+   - Example: `{ type: "input", placeholder: "Enter text", onChange: (evt) => {...} }`
+
+4. **Select** (`type: "select"`)
+
+   - Requires: `items` array (string[])
+   - Optional: `onChange` callback
+   - Example: `{ type: "select", items: ["Option 1", "Option 2"], onChange: (evt) => {...} }`
+
+5. **React Component** (`type: "reactComponent"`)
+
+   - Requires: `component` (React component)
+   - Example: `{ type: "reactComponent", component: MyComponent }`
+
+6. **Text** (`type: "text"`)
+
+   - Optional: `placeholder`, `onChange` callback
+   - Example: `{ type: "text", placeholder: "Enter text", onChange: (evt) => {...} }`
+
+7. **Textarea** (`type: "textarea"`)
+
+   - Optional: `placeholder`, `onChange` callback
+   - Example: `{ type: "textarea", placeholder: "Enter text", onChange: (evt) => {...} }`
+
+8. **Number** (`type: "number"`)
+   - Optional: `placeholder`, `onChange` callback
+   - Example: `{ type: "number", placeholder: "Enter number", onChange: (evt) => {...} }`
+
+**Setting Configuration:**
+
+- `id` - Required, unique identifier (cannot contain ".", "#", "$", "[", or "]")
+- `className` - Optional CSS class name
+- `name` - Required display name
+- `description` - Optional description (can be string or React element)
+- `action` - Required action configuration (one of the types above)
 
 #### Command Palette API
 
